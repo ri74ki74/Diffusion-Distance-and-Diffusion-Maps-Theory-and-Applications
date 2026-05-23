@@ -1,4 +1,3 @@
-```
 This repository contains code used for calculations and visualisations in my thesis "Diffusion Distance and Diffusion Maps: Theory and
 Applications". Claude Opus 4.7 was used for writing this code. All decisions regarding the structure were made by me (meaning what to plot,
 how to embed the graphs, etc). 
@@ -7,6 +6,7 @@ The data used for the FAUST example is downloaded from https://dfaust.is.tue.mpg
   Navigate to "Download", choose FEMALE REGISTRATIONS.
 
 Structure of the repository:
+```
 ├── FAUST_data/                              # contains only registrations_f.hdf5
 ├── src/                                     # helper functions
 │   ├── gen_functions/                       # functions used for generating artificial datasets
