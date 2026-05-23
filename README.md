@@ -1,4 +1,5 @@
-``` This repository contains code used for calculations and visualisations in my thesis "Diffusion Distance and Diffusion Maps: Theory and
+```
+This repository contains code used for calculations and visualisations in my thesis "Diffusion Distance and Diffusion Maps: Theory and
 Applications". Claude Opus 4.7 was used for writing this code. All decisions regarding the structure were made by me (meaning what to plot,
 how to embed the graphs, etc). 
 
