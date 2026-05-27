@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
+from matplotlib.ticker import ScalarFormatter
 
 
 def vis_embedding(
@@ -26,7 +27,7 @@ def vis_embedding(
         target_points = [(p.get("index"), p.get("label")) for p in points]
 
     if dim == 1:
-        fig, ax = plt.subplots(figsize=(10, 3))
+        fig, ax = plt.subplots(figsize=(10, 2))
         ax.scatter(
             Psi[:, 0], np.zeros_like(Psi[:, 0]), s=12, alpha=0.5, **scatter_kwargs
         )
@@ -162,6 +163,13 @@ def vis_embedding_pair(
         ranges = np.ptp(all_data, axis=0)
         ax.set_box_aspect(ranges / ranges.max())
         ax.legend(markerscale=5)
+        from matplotlib.ticker import ScalarFormatter
+
+        fmt = ScalarFormatter(useOffset=False)
+        fmt.set_scientific(False)
+        ax.xaxis.set_major_formatter(fmt)
+        ax.yaxis.set_major_formatter(fmt)
+        ax.zaxis.set_major_formatter(fmt)
 
         for pane in [ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane]:
             pane.fill = False

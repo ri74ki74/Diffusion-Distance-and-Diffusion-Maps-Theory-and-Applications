@@ -12,6 +12,6 @@ def gaussian_full_similarity(X: np.ndarray, epsilon: float) -> np.ndarray:
     d2 = sq_n[:, None] + sq_n[None, :] - 2 * (X @ X.T)
 
     # Calculating the Gaussian similarity matrix
-    W = np.exp(-d2 / epsilon)
+    W = np.exp(-d2 / (2 * epsilon))
 
     return W
