@@ -26,5 +26,6 @@ Structure of the repository:
 │   ├── transformations.py                   # functions for rigid transformations
 ├── artificial_examples.ipynb                # notebook for illustrating diffusion maps on artificially generated datasets
 ├── faust_example.ipynb                      # notebook for illustrating diffusion maps on FAUST dataset
+└── Thesis_tex                               # all .tex for my thesis
 
 ```
