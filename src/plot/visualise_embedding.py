@@ -163,7 +163,6 @@ def vis_embedding_pair(
         ranges = np.ptp(all_data, axis=0)
         ax.set_box_aspect(ranges / ranges.max())
         ax.legend(markerscale=5)
-        from matplotlib.ticker import ScalarFormatter
 
         fmt = ScalarFormatter(useOffset=False)
         fmt.set_scientific(False)
