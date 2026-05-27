@@ -1,0 +1,36 @@
+# LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.xml
+*.gz
+*.toc
+*.synctex.gz
+*.synctex(busy)
+*.nav
+*.snm
+*.vrb
+*.idx
+*.ind
+*.ilg
+
+# Python
+*.pyc
+*.pyo
+__pycache__/
+.ipynb_checkpoints/
+*.egg-info/
+.env
+venv/
+
+# Data
+*.hdf5
+
+# OS
+.DS_Store
+.vscode/

@@ -1,0 +1,78 @@
+%------------------------------------------------
+% Document class
+%------------------------------------------------
+
+\documentclass[12pt, a4paper]{article}
+
+%------------------------------------------------
+% Packages & settings 
+%------------------------------------------------
+\input{setup}
+
+
+%------------------------------------------------
+% Metadata
+%------------------------------------------------
+\title{Diffusion Distance and Diffusion Maps: Theory and Applications}
+\author{Riki-Taavi Nurm}
+\date{}                        
+
+\begin{document}
+
+%------------------------------------------------
+% Front matter
+%------------------------------------------------
+
+% Titlepage
+\include{00_titlepage}
+\tableofcontents
+
+% Abstract
+\include{01_abstract}
+
+% Introduction
+\include{02_introduction}
+
+%------------------------------------------------
+% Chapters
+%------------------------------------------------
+
+%----------------------------------------
+% Preliminaries - algebra and probability
+%----------------------------------------
+
+\include{03_preliminaries}
+
+%----------------------------------------
+% Spectral Theory
+%----------------------------------------
+
+\include{04_spectral_theorem}
+
+%----------------------------------------
+% Diffusion theory
+%----------------------------------------
+
+\include{05_diffusion_maps}
+
+%----------------------------------------
+% Applications
+%----------------------------------------
+
+\include{06_applications}
+
+%------------------------------------------------
+% Back matter
+%------------------------------------------------
+
+% Summary
+\include{07_summary}           
+
+
+% Bibliography
+\printbibliography             
+
+% Licence
+\include{08_copyright}
+
+\end{document}

@@ -1,0 +1,305 @@
+\subsection{Diffusion Theory}\label{subsec:diff_theory}
+In this subsection, we will define diffusion distance and diffusion maps in a self-contained manner, building on \cite{nips:dif_maps}. The main result of this thesis, Theorem \ref{theor:main_theorem}, states that the diffusion distance on the graph is equal, up to a known scaling constant, to the Euclidean distance in the embedded space. Our presentation differs from \cite{nips:dif_maps} mainly in two ways. Firstly, we provide a self-contained proof, while \cite{nips:dif_maps} relies on many auxiliary results. Secondly, we state sufficient conditions on the kernel under which the theorem is applicable; this is not done in \cite{nips:dif_maps}.
+
+
+Although we have stated and proved most of the necessary results, we still need to prove some additional ones. Therefore, to make this subsection easier to follow, we begin by providing a roadmap outlining the key checkpoints. After that, we will start from the beginning.
+
+\begin{enumerate}
+    \renewcommand{\labelenumi}{(\Roman{enumi}).}
+    \item We start with a finite one- or higher-dimensional set of data, which we denote by $\mathcal{X}$. We can think of the points of $\mathcal{X}$ as vertices of an undirected weighted graph $G=(\mathcal{X}, W)$ with $W$ being the set of weighted edges, which we will define shortly, such that we can construct a Markov chain on the graph. Note that the elements of $\mathcal{X}$ have an arbitrary but fixed order: the labelling $x_0, x_1, \dots, x_{n-1}$ is chosen arbitrarily once and kept consistent throughout the subsection. This also justifies the notation $v_i(x_j)$ for denoting the coordinate of vector $v_i$ corresponding to the position of data point $x_j$.
+
+    \item We will define diffusion distance at time $t\in\N\cup\{0\}$ as 
+    \begin{align*}
+    D_t^2(x_i,x_j) & \coloneqq \norm{p(t,x|x_i) - p(t,x|x_j)}_w^2 \\
+    &\coloneqq \sum\limits_{x\in\mathcal{X}}\l p(t,x|x_i)-p(t,x|x_j)\r^2w(x),
+    \end{align*}
+    where $x_i,x_j\in\mathcal{X}$, $p(t,x\mid x_i)$ denotes the probability of a random walk landing at location $x$ at time $t$, given a starting location $x_i$ at time $t = 0$, and $w(x)$ is a weight. We then define the diffusion maps as
+    \begin{align*}
+        \Psi_t:\mathcal{X}\ni x_i\mapsto\l \lambda_1^t\psi_1(x_i),\dots,\lambda_{k}^t\psi_{k}(x_i)\r\in\R^{k},
+    \end{align*}
+    where $\N\ni k\leq \text{card}(\mathcal{X})-1$, $\lambda_i$ is the eigenvalue, and $\psi_i$ is the corresponding right eigenvector of the Markov matrix defined on the graph $G$.
+
+    \item We will finish the subsection by proving that diffusion distance on the graph is equal, up to a scaling factor, to the Euclidean distance in the embedded space, where the embedding uses all $(\text{card}(\mathcal{X})-1)$ non-trivial eigenvectors:
+    \begin{equation*}
+        D_t^2(x_i,x_l) = \frac{1}{c} \sum_{j=1}^{\text{card}(\mathcal{X})-1}\l\lambda_j^t\r^2(\psi_j(x_i)-\psi_j(x_l))^2=\frac{1}{c}\norm{\Psi_t(x_i)-\Psi_t(x_l)}^2,
+    \end{equation*}
+    where $x_i, x_l\in\mathcal{X}$ and $c\in\R$.
+\end{enumerate}
+
+We now begin by denoting the set of data $\mathcal{X}\coloneqq\{x_0,\dots,x_{n-1}\}\subset\R^p$ $(n,p\in\N)$. To build the undirected weighted graph $G=(\mathcal{X}, W)$, with $W\subset\mathcal{X}\times\mathcal{X}$, we need to determine the weights. For that, we start by defining a kernel function. 
+\begin{df}
+     A function $k:\mathcal{X}\times\mathcal{X}\to(0,\infty)$ is called a \textit{kernel function} (kernel, for short). 
+
+    In general, kernels need not have a strictly positive range, but in our case, it is important for the theory to hold.
+\end{df}
+
+Additionally, we assume that the kernel $k$ is 
+\begin{enumerate}
+    \renewcommand{\labelenumi}{\arabic{enumi}.}
+    \item Positive semi-definite:
+      \begin{equation*}
+          \sum\limits_{i,j=0}^{m-1}c_ic_jk(x_i,x_j)\geq 0
+      \end{equation*}
+      for any $x_0,\dots, x_{m-1}\in \mathcal{X}$, $c_0,\dots, c_{m-1}\in\R\; (m\in\N)$.
+    \item Symmetric: $k(x_i,x_j)=k(x_j,x_i)$ for every $x_i,x_j\in\mathcal{X}$.
+\end{enumerate}
+
+\begin{ex}\label{ex:gaussian_kernel}
+    Let $x_i,x_j\in\R^p$ and $\epsilon>0$. The \textit{Gaussian kernel} is a strictly positive, symmetric, positive semi-definite kernel
+    \begin{align*}
+    k(x_i,x_j) \coloneqq \exp\l-\frac{\norm{x_i-x_j}^2}{2\epsilon}\r.
+    \end{align*}
+Here $\epsilon >0$ can be thought of as the width or radius, since for a large $\epsilon$ the kernel will evaluate to near 1 even for points that are far apart.
+\end{ex}
+
+
+Now we can determine the weights for the graph $G$ by defining $W\in\matr$ as $W_{ij}\coloneqq k(x_i,x_j)$ $(i,j\in\{0,\dots,n-1\})$. We define the degree of a vertex as the sum of weights connecting it to other vertices. This allows us to naturally define the random-walk normalisation matrix $D$.
+
+\begin{df}
+    Let $W, D\in\matr$. The diagonal matrix $D$ is called the \textit{random-walk normalisation matrix} if
+    $$
+    D_{ii}\coloneqq\sum\limits_{j=0}^{n-1}W_{ij}.
+    $$
+\end{df}
+Since, in our case, there are no isolated vertices ($k$ is a strictly positive kernel), the matrices $D^{-1}$ and $D^{-1/2}$ are well-defined.
+
+We now have all the necessary components to define a Markov chain on the graph $G$. We construct a time-homogeneous Markov chain $\{X_t\}_{t\geq0}$ with the vertices $\mathcal{X}$ as its states and the transition probability between the states specified via the normalised weighted edges:
+\begin{gather*}
+    \forall t\in\N\cup\{0\}:\; \pr(X_{t+1}=x_j\mid X_t = x_i) = \frac{k(x_i,x_j)}{\sum\limits_{m=0}^{n-1}k(x_i,x_m)}.
+\end{gather*}
+Arranging these probabilities into an $n$-dimensional matrix $M\in\matr$, such that $$M_{ij}=\pr(X_{t+1}=x_j\mid X_t = x_i),$$ we have constructed a Markov transition matrix.
+
+It turns out that $M=D^{-1}W$. Indeed, 
+\begin{gather*}
+    \l D^{-1}W\r_{ij} = \sum\limits_{k=0}^{n-1}D_{ik}^{-1}W_{kj}=\frac{W_{ij}}{D_{ii}}=\frac{W_{ij}}{\sum\limits_{m=0}^{n-1}W_{im}}=\frac{k(x_i,x_j)}{\sum\limits_{m=0}^{n-1}k(x_i,x_m)}=M_{ij}.
+\end{gather*}
+
+\begin{ex}
+    Let $W$ be a weight matrix such that
+    \begin{align*}
+    W =
+        \left(
+        \begin{array}{c c}
+        1 & 0.25 \\
+        0.25 & 1
+        \end{array}
+        \right).
+    \end{align*}
+
+    Then the corresponding random walk normalisation matrix is
+    \begin{align*}
+    D =
+        \left(
+        \begin{array}{c c}
+        1.25 & 0 \\
+        0 & 1.25
+        \end{array}
+        \right),
+    \end{align*}
+    and the resulting row-stochastic Markov transition matrix $M=D^{-1}W$ is
+    \begin{align*}
+    M =
+        \left(
+        \begin{array}{c c}
+        0.8 & 0.2 \\
+        0.2 & 0.8
+        \end{array}
+        \right).
+    \end{align*}
+\end{ex}
+
+We will now define a matrix $D^{1/2}MD^{-1/2}\eqqcolon M_s\in\matr$. Note that $M_s$ is symmetric:
+$$M_s=D^{1/2}MD^{-1/2}=D^{1/2}D^{-1}WD^{-1/2}=D^{-1/2}WD^{-1/2},$$
+and on the other hand
+$$M_s^T=\l \l D^{-1/2}W \r D^{-1/2}\r^T=\l D^{-1/2} \r ^T W^T \l D^{-1/2}\r ^T=D^{-1/2}WD^{-1/2}$$ because $D$ and $W$ are symmetric by construction. Additionally, $M$ is similar to $M_s$:
+\begin{align*}
+    M_s = D^{1/2} M \l D^{1/2}\r ^{-1}.
+\end{align*} 
+This means that $M$ and $M_s$ share eigenvalues. Since $M_s$ is symmetric, from the Spectral Theorem (see  Theorem \ref{thm:spectral}) we know that the eigenvalues $\{\lambda_j\}_{j=0}^{n-1}$ are all real. Denote the corresponding eigenvectors of $M_s$ by $\{ v_j\}_{j=0}^{n-1}$. Note that they form an orthonormal basis in $\R^n$, which also means that $\norm{v_j}_2=1$. Additionally, we choose $v_0$ to be positive; this is possible by Theorem \ref{thr:perron_frobenius} because $M_s$ is a positive matrix.
+
+Additionally, note that $M_s$ is PSD. 
+Indeed, for $x\in\R^n\setminus \{0\}$ denote $y=D^{-1/2}x$ and therefore $y^T = x^TD^{-1/2}$.  Now 
+$$x^TM_sx = x^TD^{-1/2}WD^{-1/2}x = y^TWy\geq 0$$ 
+because $W$ is, by assumption, PSD.
+
+Now, it turns out that the left and right eigenvectors of $M$ are respectively 
+\begin{align*}
+    \phi_j = D^{1/2}v_j \text{ and } \psi_j = D^{-1/2}v_j. 
+\end{align*}
+Indeed:
+\begin{align*}
+    \phi_j^TM &= v_j^TD^{1/2}M \l D^{-1/2}D^{1/2}\r =v_j^TM_sD^{1/2} =(M_sv_j)^TD^{1/2} \\
+    &= (\lambda_jv_j)^TD^{1/2} 
+    = \lambda_j\l D^{1/2} v_j\r^T = \lambda_j\phi_j^T
+\end{align*}
+and 
+\begin{gather*}
+    M\psi_j = MD^{-1/2}v_j = D^{-1/2}D^{1/2}MD^{-1/2}v_j=D^{-1/2}\lambda_jv_j=\lambda_j\psi_j.
+\end{gather*}
+
+Since the vectors $v_j$ are orthonormal in $\R^n$, the following holds:
+\begin{gather*}
+    \ip{\psi_i}{\phi_j} = v_i^TD^{-1/2}D^{1/2}v_j = \delta_{ij}.
+\end{gather*}
+Therefore $\{\psi_j\}_{j=0}^{n-1}$ and $\{\phi_j\}_{j=0}^{n-1}$ are biorthonormal.
+
+Before continuing, we will prove that strictly positive Markov matrices have unique stationary distributions.
+
+\begin{theorem}\label{unique_stat_dist}
+    Let $M\in\matr$ be a Markov transition matrix with strictly positive entries, meaning $M_{ij}>0$ for every $i,j\in\{0,\dots,n-1\}$, then $M$ has a unique stationary distribution.
+\end{theorem}
+\begin{proof}
+    Let $M\in\matr$ be a strictly positive Markov transition matrix. We will first show that $M$ is aperiodic and then that $M$ is irreducible. 
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{\arabic{enumi}.}
+        \item We want to show that for any $i\in\{0,\dots, n-1\}$ the greatest common divisor of the set $\{t \in\N : p(t,i\mid i) >0\}$ is 1. Since $M$ is strictly positive $p(1, i \mid i)>0$, therefore $1\in\{t \in\N : p(t, i\mid i) >0\}$ which is what we wanted to show.
+
+        \item We want to show that $p(t,j \mid i)>0$ for every $i,j\in\{0,\dots, n-1\}$ and for some $t\in\N$. Since the Markov transition matrix is strictly positive $p(1, j\mid i)>0$, therefore $M$ is irreducible.
+    \end{enumerate}
+
+    Now, since the state space is finite, from Theorem \ref{ergodic}, it follows that $M$ has a unique stationary distribution.
+\end{proof}
+
+We will also prove a lemma about the eigenvalues of a strictly positive Markov transition matrix $M$, which is similar to a symmetric PSD matrix.
+
+\begin{lemma}
+    Let $M\in\matr$ be a strictly positive Markov transition matrix and let \linebreak $M_s\in\matr$ be a symmetric positive semi-definite matrix which is similar to $M$. Then the eigenvalues of $M$ are $$1=\lambda_0 > \lambda_1 \geq \dots \geq \lambda_{n-1}\geq 0.$$
+\end{lemma}
+\begin{proof}
+    We will prove the lemma in three steps. First, we will show that all eigenvalues are non-negative. Secondly, we will show that no eigenvalue is greater than 1. And lastly, we will show that there exists a unique eigenvalue $\lambda_0=1$.
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{\arabic{enumi}.}
+        \item Since $M_s$ is PSD then from Theorem \ref{theor:non_neg_eigenval} we know that all its eigenvalues are non-negative. From the similarity of $M$ and $M_s$, it follows that the eigenvalues of $M$ are also non-negative.
+
+        \item Let $v$ be an eigenvector of $M$ and $\lambda\geq0$ the corresponding eigenvalue. Denote the index of the largest coordinate (by absolute value) by  $i_{\max} = \text{argmax}_i\abs{v_i}$. Since $M$ is a row-stochastic matrix, the following holds:
+        \begin{align*}
+            \abs{\lambda}\abs{v_{i_{\max}}} & =\abs{\lambda v_{i_{\max}}}=\abs{(Mv)_{i_{\max}}} = \abs{\sum\limits_{j=0}^{n-1}M_{i_{\max}j}v_j} \\
+            & \leq \sum\limits_{j=0}^{n-1}M_{i_{\max}j}\abs{v_j} \leq \sum\limits_{j=0}^{n-1}M_{i_{\max}j}\abs{v_{i_{\max}}} = \abs{v_{i_{\max}}},
+        \end{align*}
+        hence $\abs{\lambda}\leq 1$. Since $\lambda\geq 0$, we obtain $\lambda\leq 1$.
+
+        \item From Theorem \ref{unique_stat_dist} we know that $M$ has a unique stationary distribution. From Theorem \ref{ergodic} we know that a left eigenvector of $M$ is the stationary distribution with corresponding eigenvalue 1. From Theorem \ref{thr:alg_mul} we know that the eigenvalue $\lambda_0=1$ is algebraically simple.
+    \end{enumerate}
+    Therefore we have shown that the eigenvalues of $M$ are of form $1=\lambda_0 > \lambda_1 \geq \dots \geq \lambda_{n-1}\geq 0$.
+\end{proof}
+
+Since $M_s$ is a symmetric real matrix, we can eigen-decompose it, meaning 
+\begin{gather*}
+    M_s=V\Lambda V^T
+\end{gather*}
+where $V\in\matr$ is a matrix with its columns being orthonormal eigenvectors of $M_s$ and \linebreak $\Lambda\in\matr$ is a diagonal matrix with eigenvalues $\{\lambda_j\}_{j=0}^{n-1}$ on its diagonal. From $M_s$ being similar to $M$ it follows that
+\begin{gather*}
+    M = D^{-1/2}M_sD^{1/2} = D^{-1/2}V\Lambda V^TD^{1/2} = \l D^{-1/2}V\r\Lambda \l D^{1/2}V\r^T = \Psi\Lambda\Phi^T.
+\end{gather*}
+Therefore 
+\begin{gather*}
+    M^t = \Psi\Lambda^t\Phi^T.
+\end{gather*}
+Now, recall that $p(t,x_j\mid x_i)$ denotes the probability of travelling from state $x_i$ to the state $x_j$ in $t\in\N$ steps. By the Chapman-Kolmogorov equation \cite{thr:kolmog}, $\l M^t\r_{ij}=p(t,x_j\mid x_i)$.
+Therefore
+\begin{align*}
+    \l M^t\r_{ij} & = p(t,x_j\mid x_i) = \sum_{k=0}^{n-1}\lambda_k^t\psi_k(x_i)\phi_k(x_j) \\
+    & = \psi_0(x_i)\phi_0(x_j) + \sum_{k=1}^{n-1}\lambda_k^t\psi_k(x_i)\phi_k(x_j),
+\end{align*}
+
+Now note that any constant vector $\boldsymbol{c}\in\R^{n\times 1}$ is a right eigenvector with eigenvalue $1$.
+Indeed, 
+\begin{gather*}
+M\boldsymbol{c} = \l \sum_{j=0}^{n-1} M_{0j}c,\dots,\sum_{j=0}^{n-1} M_{(n-1)j}c\r^T = \boldsymbol{c}.
+\end{gather*}
+Since $M$ is irreducible, from Theorem \ref{thr:alg_mul} we know that the eigenvalue $\lambda_0=1$ is simple; therefore, $\psi_0$ is also a constant vector. Recalling that $\psi_0 = D^{-1/2}v_0$, this means $\psi_0(x_i) = D_{ii}^{-1/2}v_0(x_i)$ is the same for every $x_i\in\mathcal{X}$. It is worth noting that from $\psi_0$ being constant it follows that $v_0(x_i)$ is proportional to $D_{ii}^{1/2}$ for every $x_i\in\mathcal{X}$.
+
+We can now define diffusion distance at time $t\in\N\cup\{0\}$ as
+\begin{equation} \label{dif_distance}
+\begin{split}
+ D_t^2(x_i,x_j) & \coloneqq \norm{p(t,x|x_i) - p(t,x|x_j)}_w^2\\
+& \coloneqq \sum\limits_{x\in\mathcal{X}}\l p(t,x|x_i)-p(t,x|x_j)\r^2w(x),
+\end{split}
+\end{equation}
+
+where we choose the weight $w(x)=1/\phi_0(x)$. Note that this weight is well-defined, because $v_0$ is a positive eigenvector and the diagonal matrix $D^{1/2}$ has positive entries on its diagonal. We can also denote the mapping between the original space and the first $k$ non-trivial eigenvectors as the \textit{diffusion map}
+\begin{equation} \label{dif_map}
+\begin{split}
+\Psi_t(x_i) \coloneqq \l \lambda_1^t\psi_1(x_i),\dots, \lambda_{k}^t\psi_{k}(x_i)\r,
+\end{split}
+\end{equation}
+with $\N\ni k\leq n-1$ (where $n = \text{card}(\mathcal{X})$ is the number of vertices).
+
+We now state the main theorem connecting diffusion distance to the Euclidean distance in the embedded space. Table \ref{tab:notation} summarises the key objects used in the theorem.
+
+\begin{table}[H]
+    \centering
+    \caption{Key notation.}
+    \label{tab:notation}
+    \begin{tabular}{llp{6cm}}
+        \toprule
+        \textbf{Symbol} & \textbf{Meaning} & \textbf{Note} \\
+        \midrule
+        $\mathcal{X}$ & dataset of $n$ points in  $\R^p$ & - \\
+        $W$ & $\matr\ni W,\;W_{ij} = k(x_i, x_j)$ & Positive, symmetric, PSD\\
+        $D$ & $\matr\ni D,\;D_{ii}=\sum\limits_{j=0}^{n-1}W_{ij}$ & Diagonal\\
+        $M$ & $D^{-1}W$ & Row-stochastic\\
+        $M_s$ & $D^{-1/2}WD^{-1/2}$ & Symmetric, similar to $M$ \\
+        $v_j$ & $j$-th eigenvector of $M_s$ & $\norm{v_j}_2 = 1$\\
+        $\lambda_j$ & $j$-th eigenvalue of $M$ (and $M_s$) & - \\
+        $\psi_j = D^{-1/2}v_j$ & $j$-th right eigenvector of $M$ & - \\
+        $\phi_j = D^{1/2}v_j$ & $j$-th left eigenvector of $M$ & - \\
+        $\Psi_t(x_i)$ & Diffusion map of $x_i$ at time $t$ & - \\
+        $D_t^2(x_i, x_l)$ & Diffusion distance between $x_i$ and $x_l$ & - \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{theorem}[see {\cite[Eq.~(11)]{nips:dif_maps}}]\label{theor:main_theorem}
+    Let $\Psi_t:\mathcal{X}\to\R^{n-1}$ be a diffusion map defined using all $(n-1)$ non-trivial eigenvectors. The diffusion distance on $\mathcal{X}$ is equal, up to a scaling by a constant, to the Euclidean distance in $\R^{n-1}$.
+    \begin{equation}
+        D_t^2(x_i,x_l) =\frac{1}{c}\sum_{j=1}^{n-1}\l\lambda_j^{t}\r^2(\psi_j(x_i)-\psi_j(x_l))^2=\frac{1}{c}\norm{\Psi_t(x_i)-\Psi_t(x_l)}^2,
+    \end{equation}
+    where $c\coloneqq \psi_0(x_i) = \frac{v_0(x_i)} {D_{ii}^{1/2}}$ which is independent of $x_i$, since $\psi_0$ is constant.
+\end{theorem}
+\begin{proof}
+    We start by rewriting the diffusion distance using the representation \eqref{dif_distance}:
+    \begin{align*}
+        D_t^2(x_i,x_l) & =\sum_{x\in \mathcal{X}}(p(t,x|x_i)-p(t,x|x_l))^2w(x)\\
+        &    = \sum_{x\in\mathcal{X}}\l \sum_{j=0}^{n-1} \lambda_j^t(\psi_j(x_i)-\psi_j(x_l))\phi_j(x) \r^2\frac{1}{\phi_0(x)} \\
+         &   = \sum_{x\in \mathcal{X}}\l \sum_{j=0}^{n-1} \lambda_j^t(\psi_j(x_i)-\psi_j(x_l))\phi_j(x)\r\!\!\l \sum_{k=0}^{n-1}\lambda_k^t(\psi_k(x_i)-\psi_k(x_l))\phi_k(x)\r\frac{1}{\phi_0(x)} \\
+         &   = \sum_{j,k=0}^{n-1} \lambda_j^t(\psi_j(x_i)-\psi_j(x_l))\lambda_k^t(\psi_k(x_i)-\psi_k(x_l))\sum_{x\in \mathcal{X}}\frac{\phi_j(x)\phi_k(x)}{\phi_0(x)}.
+    \end{align*}
+    Before continuing, we will show that 
+    \begin{gather*}
+        \sum_{x\in \mathcal{X}}\frac{\phi_j(x)\phi_k(x)}{\phi_0(x)}=\frac{1}{c}\delta_{jk}.
+    \end{gather*}
+    First recall that from the orthonormality of the eigenvectors $v_j$ of matrix $M_s$ and the forms \linebreak $\phi_j = D^{1/2}v_j$, $\psi_j = D^{-1/2}v_j$ we get $\ip{\psi_j}{\phi_k}=\delta_{jk}$. Thus it is sufficient to show that $\frac{\phi_j(x)}{\phi_0(x)}=\frac{1}{c}\psi_j(x)$ for all $x\in\mathcal{X}$, because then $\sum\limits_{x\in \mathcal{X}}\frac{\phi_j(x)\phi_k(x)}{\phi_0(x)}=\frac{1}{c} \sum\limits_{x\in \mathcal{X}}\phi_k(x)\psi_j(x)=\frac{1}{c}\ip{\psi_j}{\phi_k}$.
+    
+    Now for any $j\in\{0,\dots,n-1\}$ and any $x_i$,
+        \begin{align*}
+            & \phi_j(x_i) = \l D^{1/2}v_j\r(x_i) =  \sqrt{D_{ii}}v_j(x_i),\\
+            & \psi_j(x_i) = \l D^{-1/2}v_j\r(x_i) = v_j(x_i) / \sqrt{D_{ii}}.
+        \end{align*}
+        Taking the ratio now
+        \begin{align*}
+            \frac{\phi_j(x_i)}{\phi_0(x_i)} & = \frac{\sqrt{D_{ii}}v_j(x_i)}{\sqrt{D_{ii}}v_0(x_i)} = \frac{1}{v_0(x_i)}v_j(x_i) = \frac{D_{ii}^{1/2}}{v_0(x_i)}\frac{v_j(x_i)}{D_{ii}^{1/2}} \\
+            & = \frac{D_{ii}^{1/2}}{v_0(x_i)}\psi_j(x_i) \trn \frac{1}{c}\psi_j(x_i) =\frac{1}{c} \psi_j(x_i),
+        \end{align*}
+        where $(\ast)$ holds because $\psi_0$ is a constant vector and therefore $$c=\psi_0(x_i)=D_{ii}^{-1/2}v_0(x_i)$$ 
+        for any $i\in\{0,\dots, n-1\}$. This shows that
+        \begin{gather*}
+            \sum\limits_{x\in \mathcal{X}}\frac{\phi_j(x)\phi_k(x)}{\phi_0(x)}=\frac{1}{c}\sum\limits_{x\in\mathcal{X}}\psi_j(x)\phi_k(x)=\frac{1}{c}\delta_{jk}.
+        \end{gather*}
+        Now we can continue with the proof of the theorem:
+    \begin{align*}
+        & \sum_{j,k=0}^{n-1} \lambda_j^t(\psi_j(x_i)-\psi_j(x_l))\lambda_k^t(\psi_k(x_i)-\psi_k(x_l))\sum_{x\in \mathcal{X}}\frac{\phi_j(x)\phi_k(x)}{\phi_0(x)} \\
+        & = \frac{1}{c}\sum_{j,k=0}^{n-1} \lambda_j^t(\psi_j(x_i)-\psi_j(x_l))\lambda_k^t(\psi_k(x_i)-\psi_k(x_l))\ip{\psi_j}{\phi_k} \\
+        & = \frac{1}{c}\sum_{j,k=0}^{n-1}\lambda_j^t(\psi_j(x_i)-\psi_j(x_l))\lambda_k^t(\psi_k(x_i)-\psi_k(x_l))\delta_{jk} \\
+        & = \frac{1}{c}\sum_{j=0}^{n-1}\l\lambda_j^{t}\r^2(\psi_j(x_i)-\psi_j(x_l))^2.
+    \end{align*}
+
+    Now, since $\lambda_0 = 1$, $\psi_0$ is a constant vector, we get $(\psi_0(x_i)-\psi_0(x_l))=0$, thus
+    
+    \begin{align*}
+        \frac{1}{c}\sum_{j=0}^{n-1}\l\lambda_j^{t}\r^2(\psi_j(x_i)-\psi_j(x_l))^2 & = \frac{1}{c} \sum_{j=1}^{n-1}\l\lambda_j^{t}\r^2\l\psi_j(x_i)-\psi_j(x_l)\r^2 \\
+        & = \frac{1}{c}\norm{\Psi_t(x_i)-\Psi_t(x_l)}^2.
+    \end{align*}
+
+    That is exactly what we wanted to show. Note that the choice of the weight $w(x)=1/\phi_0(x)$ is essential for the theorem to hold.
+\end{proof}

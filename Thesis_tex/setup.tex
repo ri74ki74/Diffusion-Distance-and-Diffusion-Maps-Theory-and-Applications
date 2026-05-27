@@ -1,0 +1,146 @@
+% ---------- Encoding & Fonts --------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{color, soul} % for highlighting
+\usepackage{csquotes} % for quotes
+
+
+
+% ---------- Page Layout -------------------------------------
+\usepackage{setspace}
+\setstretch{1.30}
+\usepackage[a4paper, left=2.5cm, right=2cm, top=2cm, bottom=2cm]{geometry} %
+
+% ---------- Math packages -----------------------------------
+\usepackage{amssymb, amsmath, amsthm, amsfonts}
+\usepackage{mathtools}
+\usepackage{parskip}
+\usepackage{faktor}
+\usepackage{centernot, mathrsfs}
+\usepackage{comment}
+\everymath{\displaystyle}
+
+% -- tikz --------
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows.meta}
+
+
+% ---------- Figures & Tables -----------------------------------------
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{caption}
+\captionsetup{justification=centering}
+\graphicspath{
+  {./Figures/}
+  {./Figures/Section1/}
+  {./Figures/Section3/}
+  {./Figures/Section3/Dumbbell/}
+  {./Figures/Section3/FAUST/}
+  {./Figures/Section3/Tori/}
+  {./Figures/Section3/Toroidal helix/}
+}
+
+
+
+% ---------- Hyperlinks --------------------------------------
+\usepackage{hyperref}
+\usepackage{url}
+
+
+% ---------- Bibliography ------------------------------------
+\usepackage[style=alphabetic, backend=biber]{biblatex}
+\addbibresource{bibliography.bib}
+
+
+% ============================================================
+%  Theorem environments
+% ============================================================
+ 
+% Filled square for QED
+\renewcommand{\qedsymbol}{$\blacksquare$}
+ 
+% Custom theorem style: bold name, italic body, no indent
+\newtheoremstyle{thmstyle}%
+  {\topsep}%   Space above
+  {\topsep}%   Space below
+  {\itshape}%  Body font
+  {}%          Indent amount
+  {\bfseries}% Theorem head font
+  {.}%         Punctuation after head
+  { }%         Space after head
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ (#3)}}%
+ 
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{prop}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{cor}[theorem]{Corollary}
+\newtheorem{property}[theorem]{Property}
+ 
+\theoremstyle{definition}
+\newtheorem{df}[theorem]{Definition}
+\newtheorem{ex}[theorem]{Example}
+ 
+\theoremstyle{remark}
+\newtheorem{note}[theorem]{Note}
+ 
+% Custom proof environment
+\renewenvironment{proof}[1][Proof]{\par
+  \vspace{-\topsep}
+  \textnormal{\scshape #1.}
+  \pushQED{\hfill$\blacksquare$}%
+  \normalfont
+  \topsep0pt \partopsep0pt
+}{%
+  \popQED\endtrivlist
+  \addvspace{6pt plus 6pt}
+}
+
+
+% ============================================================
+%  Custom commands
+% ============================================================
+
+% --- Sets ---------------------------------------------------
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\K}{\mathbb{K}}
+
+% --- Operators ----------------------------------------------
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\pr}{\boldsymbol{P}}
+\newcommand{\matr}{\text{Mat}_n(\mathbb{R})}
+\newcommand{\matc}{\text{Mat}_n(\mathbb{C})}
+\newcommand{\matk}{\text{Mat}_n(\mathbb{K})}
+
+% --- Delimiters ---------------------------------------------
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\ip}[2]{\langle #1, #2 \rangle}
+\newcommand{\abs}[1]{\left|#1\right|}
+\renewcommand{\l}{\left(}
+\renewcommand{\r}{\right)}
+
+
+% --- Annotated equality (*, **) -----------------------------
+\newcommand\trn{\mathrel{\stackrel{\makebox[0pt]{\mbox{\normalfont\tiny $(\ast)$}}}{=}}}
+\newcommand\trnn{\mathrel{\stackrel{\makebox[0pt]{\mbox{\normalfont\tiny **}}}{=}}}
+
+% --- Greek letter overrides ---------------------------------
+\renewcommand{\epsilon}{\varepsilon}
+\renewcommand{\phi}{\varphi}
+
+% --- Inequality overrides -----------------------------------
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+% --- List label override ------------------------------------
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+
+% --- Highlighting -------------------------------------------
+\definecolor{mint}{RGB}{178, 244, 200}
+\newcommand{\hlmint}[1]{{\sethlcolor{mint}\hl{#1}}}

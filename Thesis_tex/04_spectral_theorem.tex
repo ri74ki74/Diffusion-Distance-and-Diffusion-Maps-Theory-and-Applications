@@ -1,0 +1,329 @@
+\section{Diffusion Distance and Diffusion Maps}\label{sec:two}
+
+Many datasets can be modelled as graphs, often as fully connected, weighted graphs where edge weights reflect the similarity between data points. The diffusion distance provides a natural way to measure the similarity between vertices in such graphs, but computing it directly can be computationally expensive. In this section, we prove that under sufficient conditions on the kernel, diffusion maps produce an embedding in which Euclidean distance is equal, up to a scaling constant, to diffusion distance in the original space. While this equivalence, by itself, does not reduce computational cost, in practice, it is often sufficient to use diffusion maps to embed the data into a lower-dimensional Euclidean space, in which case the complexity decreases significantly. We will not provide rigorous mathematical justification for using diffusion maps for dimensionality reduction, but we will illustrate their efficiency in Section \ref{sec:three}.
+
+Before we formally define diffusion distance and prove how to embed the graph into Euclidean space, we need to prove the spectral theorem.
+\subsection{Spectral Theorem}\label{subsection1}
+Since in this subsection we will frequently work with matrices that have a block structure, we start by defining the block decomposition of matrices. This will make the proofs in this subsection easier to follow.
+
+\begin{df}
+    Let $A\in\text{Mat}_{m\times n}(\R)$. We say that the matrix $A$ has a \textit{block decomposition} if
+    $$
+    A = 
+    \left(
+      \begin{array}{c|c}
+        A_{11} & A_{12} \\ \hline
+        A_{21} & A_{22}
+      \end{array}
+    \right)
+    $$
+where $A_{ij}\in\text{Mat}_{m_i\times n_j}(\R)$ such that $m_1+m_2 = m$, $n_1+n_2 = n$ and $i,j\in\{1,2\}$.
+\end{df}
+
+We will now state some useful properties of block decomposed matrices.
+
+\begin{property}
+    Let $A\in\text{Mat}_{m\times n}(\R)$ and let 
+    $$A=\left(
+      \begin{array}{c|c}
+        A_{11} & A_{12} \\ \hline
+        A_{21} & A_{22}
+      \end{array}
+    \right)
+    $$
+    be its block decomposition. Then 
+    $$
+    A^T=\left(
+      \begin{array}{c|c}
+        A_{11}^T & A_{21}^T \\ \hline
+        A_{12}^T & A_{22}^T
+      \end{array}
+    \right).
+    $$
+\end{property}
+% \begin{property}
+%     Let $A,B\in\matr$ be diagonal and 
+%     $$A=\left(
+%       \begin{array}{c|c}
+%         A_{11} & {\Theta} \\ \hline
+%         {\Theta} & A_{22}
+%       \end{array}
+%     \right),\; B=\left(
+%       \begin{array}{c|c}
+%         B_{11} & {\Theta} \\ \hline
+%         {\Theta} & B_{22}
+%       \end{array}
+%     \right)
+%     $$
+%     be their respective block decompositions and assume that the blocks $A_{ij}$ and $B_{ij}$ have the same dimensions for each $i,j\in\{1,2\}$. 
+%     \begin{enumerate}
+%         \renewcommand{\labelenumi}{\arabic{enumi}.}
+%         \item Then 
+%         $$
+%         AB = \left(
+%           \begin{array}{c|c}
+%             A_{11}B_{11} & {\Theta} \\ \hline
+%             {\Theta} & A_{22}B_{22}
+%           \end{array}
+%         \right).
+%         $$
+%         \item If $A$ is invertible, then 
+%         $$
+%         A^{-1}=\left(
+%           \begin{array}{c|c}
+%             A_{11}^{-1} & {\Theta} \\ \hline
+%             {\Theta} & A_{22}^{-1}
+%           \end{array}
+%         \right).
+%         $$
+%     \end{enumerate} 
+% \end{property}
+\begin{property}[see {\cite[\textbf{Block multiplication}]{thr:gsop}}]
+    Let $A$ and $B$ be matrices with block decompositions 
+    $$A=\left(
+      \begin{array}{c|c}
+        A_{11} & A_{12} \\ \hline
+        A_{21} & A_{22}
+      \end{array}
+    \right),\; B=\left(
+      \begin{array}{c|c}
+        B_{11} & B_{12} \\ \hline
+        B_{21} & B_{22}
+      \end{array}
+    \right).
+    $$ 
+    If blocks of $A$ can multiply blocks of $B$, then
+    \begin{align*}
+    AB = 
+    \left(
+    \begin{array}{c|c}
+    A_{11} & A_{12} \\ \hline
+    A_{21} & A_{22}
+    \end{array}
+    \right)
+    \left(
+    \begin{array}{c|c}
+    B_{11} & B_{12} \\ \hline
+    B_{21} & B_{22}
+    \end{array}
+    \right)
+    =
+    \left(
+    \begin{array}{c|c}
+    A_{11}B_{11} + A_{12}B_{21} & A_{11}B_{12} + A_{12}B_{22} \\ \hline
+    A_{21}B_{11} + A_{22}B_{21} & A_{21}B_{12} + A_{22}B_{22}
+    \end{array}
+    \right).
+    \end{align*}
+\end{property}
+
+The main result we want to prove in this subsection is the spectral theorem, which states that every $n$-dimensional symmetric matrix has real eigenvalues and its eigenvectors form an orthonormal basis of $\R^n$. For better readability, we will provide the proof split into smaller lemmas.
+
+
+\begin{lemma}\label{lem:ortn_basis}
+    Let $A\in\matr$ be a symmetric matrix. Then there exists an orthogonal matrix $R\in\matr$ such that $R^{-1}AR$ is diagonal. 
+\end{lemma}
+\begin{proof}
+We will prove it by induction.
+
+The base case: if $A\in \text{Mat}_1(\R)$ the statement holds, because we can choose $\text{Mat}_1(\R)\ni R=(1)$.
+
+The inductive step: we now assume the statement holds for $(n-1)$-dimensional matrices. 
+
+We will now show that the statement holds for $n$-dimensional matrices: let $A\in\matr$ be symmetric. Since every finite-dimensional matrix has at least one eigenvalue (see Proposition \ref{prop:exists_eigenval}), we can denote the eigenvalue of $A$ as $\lambda_1\in\C$. Since $A$ is real and symmetric, from Lemma \ref{lemma_2.1}, we know that $\lambda_1\in\R$. Note that since $A$ is a real matrix and the eigenvalue $\lambda_1$ is real, then the corresponding eigenvector $v_1$ is also real.  Since eigenvectors are defined up to normalisation, we can choose $v_1$ such that $\norm{v_1}_2=1$. Since $v_1$ is a non-zero vector in $\R^n$, it can be extended to a basis $\{v_1, u_2, \dots, u_n\}$ of $\R^n$. Applying the Gram-Schmidt orthogonalisation process (see Theorem \ref{theor:gsop}) to this basis and normalising the resulting vectors, we end up with an orthonormal basis $\{v_1, v_2, \dots, v_n\}$ of $\R^n$, where the first vector remains $v_1$ since it was already a unit vector. Now let us define matrix $P = [v_1, v_2,\dots, v_n]$. Because the basis vectors are orthonormal, we know by Proposition \ref{prop:orthog_equiv} that $P$ is orthogonal.  Let $B = P^{-1}AP$. We will show that $B$ is symmetric:
+
+$B$ is symmetric: since the matrix $P$ is orthogonal we get 
+$B=P^TAP$ therefore 
+$$B^T = \l P^T \l AP\r\r^T =P^TA^TP = P^TAP.$$
+    
+Consider $Be_1$, where $e_1$ is the first standard basis vector of $\R^n$. We compute $P^TAPe_1 = Be_1$, which equals the first column of the matrix $B$. On the other hand, 
+$$P^TAPe_1 =P^TAv_1 = P^T\lambda_1v_1 = \lambda_1P^Tv_1 \trn \lambda_1 e_1.$$
+Equality $(\ast)$ holds, because $P^T$ is a matrix with vectors $v_1, v_2, \dots, v_n$ as rows, since they are orthonormal $v_i^Tv_j=\delta_{ij}$. So we get 
+\begin{align*}
+B =
+    \left(
+    \begin{array}{c|c}
+    \lambda_1 & {\Theta} \\ \hline
+    {\Theta} & C
+    \end{array}
+    \right),
+\end{align*}
+
+where matrix $C\in \text{Mat}_{n-1} (\R)$. Note that $C$ is also symmetric. Indeed, this follows directly from $B$ being a symmetric matrix. By our inductive hypothesis, there exists a matrix $Q$ such that the matrix $D:=Q^{-1}CQ$ is diagonal and the matrix $Q$ is orthogonal. Now, let us define the matrix $R$ as follows: 
+\begin{equation*}
+R := P
+    \left(
+    \begin{array}{c|c}
+    1 & {\Theta} \\ \hline
+    {\Theta} & Q
+    \end{array}
+    \right).
+\end{equation*}
+Observe that
+    \begin{enumerate}
+    \renewcommand{\labelenumi}{(\arabic{enumi})}
+    \item $R$ is orthogonal:
+    \begin{align*}
+    R^{-1} & =
+        \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q^{-1}
+        \end{array}
+        \right)
+    P^{-1}=
+        \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q^{T}
+        \end{array}
+        \right)
+    P^{T}=R^T.
+    \end{align*}
+    Note that the inverse of $R$ is found correctly, since 
+    \begin{align*}
+        \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q^{-1}
+        \end{array}
+        \right)\left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q
+        \end{array}
+        \right)=\left(
+        \begin{array}{c|c}
+        1\cdot 1 + \Theta\cdot\Theta & 1\cdot\Theta+\Theta Q \\ \hline
+        {\Theta}\cdot 1 + Q^{-1}\cdot\Theta & \Theta\cdot\Theta + Q^{-1}Q
+        \end{array}
+        \right) = \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & I
+        \end{array}
+        \right) = I.
+    \end{align*}
+    \item $R^{-1}AR$ is diagonal: 
+    \begin{align*}
+    R^{-1}AR = R^TAR 
+    & = 
+     \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q^T
+        \end{array}
+    \right)
+     P^T A P
+     \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q
+        \end{array}
+    \right)
+     \\
+     & = \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q^T
+        \end{array}
+     \right)
+     B
+     \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q
+        \end{array}
+     \right) \\
+     & = \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q^T
+        \end{array}
+     \right)
+     \left(
+        \begin{array}{c|c}
+        \lambda_1 & {\Theta} \\ \hline
+        {\Theta} & C
+        \end{array}
+     \right)
+     \left(
+        \begin{array}{c|c}
+        1 & {\Theta} \\ \hline
+        {\Theta} & Q
+        \end{array}
+     \right)\\
+     & = \left(
+        \begin{array}{c|c}
+        \lambda_1 & {\Theta} \\ \hline
+        {\Theta} & Q^T\,C\,Q
+        \end{array}
+     \right)
+     =
+     \left(
+        \begin{array}{c|c}
+        \lambda_1 & {\Theta} \\ \hline
+        {\Theta} & D
+        \end{array}
+     \right)
+    \end{align*}
+    and matrix $D$ is diagonal by assumption.
+\end{enumerate}
+Hence, $R$ is orthogonal and $R^{-1}AR$ is diagonal, which completes the inductive step.
+\end{proof}
+
+\begin{prop}\label{prop:spec_the_II}
+    Let $A\in\matr$. The following statements are equivalent:
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{(\roman*)}
+        \item There exists an orthogonal matrix $R$ such that the matrix $R^{-1}AR$ is diagonal.
+        \item $\R^n$ has an orthonormal basis of eigenvectors of $A$. 
+    \end{enumerate}
+\end{prop}
+\begin{proof}
+    Firstly, assume there exists an orthogonal matrix $R\in\matr$ such that $R^{-1}AR$ is diagonal with elements $\lambda_1,\dots,\lambda_n\in\R$ on the diagonal. Multiplying both sides by $R$ we get 
+    \begin{gather*}
+        AR = R
+        \begin{pmatrix}
+            \lambda_{1} & & \\
+            & \ddots & \\
+            & & \lambda_{n}
+        \end{pmatrix}.
+    \end{gather*}
+    Let $v_1,\dots,v_n$ denote the columns of $R$. Therefore, the $j$-th column of matrix $AR$ is $Av_j$ and the $j$-th column of the right-hand side is $\lambda_jv_j$. Comparing the columns we get $Av_j = \lambda_jv_j$ for every $j\in\{1,\dots, n\}$ and thus each $v_j$ is an eigenvector of $A$ with eigenvalue $\lambda_j$. From the orthogonality of $R$, its columns form an orthonormal system in $\R^n$ (see Proposition \ref{prop:orthog_equiv}). Since there are $n$ of them, they form an orthonormal basis in $\R^n$, which is exactly what we needed to show.
+
+    Assume now that eigenvectors $\{v_1,\dots, v_n\}$ of a matrix $A$ form an orthonormal basis of $\R^n$. Denote the corresponding eigenvalues with $\{\lambda_1, \dots, \lambda_n\}$. Let $R$ be a matrix with eigenvectors $v_1, \dots, v_n$ for its columns. Since the eigenvectors form an orthonormal basis, $R$ is orthogonal (see Proposition \ref{prop:orthog_equiv}). Now, computing the matrix $AR$ column-by-column, we get 
+    \begin{gather*}
+        AR = [Av_1,\dots, Av_n] = [\lambda_1 v_1, \dots, \lambda_n v_n] = R
+        \begin{pmatrix}
+            \lambda_{1} & & \\
+            & \ddots & \\
+            & & \lambda_{n}
+        \end{pmatrix}.
+    \end{gather*}
+    Multiplying both sides by $R^{-1}$ from the left we get
+    \begin{gather*}
+        R^{-1}AR = \begin{pmatrix}
+            \lambda_{1} & & \\
+            & \ddots & \\
+            & & \lambda_{n}
+        \end{pmatrix}
+    \end{gather*}
+    which is diagonal. Therefore, we have shown that the statements are indeed equivalent.
+\end{proof}
+
+\begin{theorem}[Spectral Theorem, see {\cite[Spectral Theorem, p.~339]{thr:gsop}}]\label{thm:spectral}
+    Let $A\in \matr$ be symmetric. Then the following two statements hold:
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{\arabic{enumi}.}
+        \item $A$ has real eigenvalues.
+        \item There exists an orthonormal basis of $\R^n$ which consists of eigenvectors of $A$.
+    \end{enumerate}
+\end{theorem}
+\begin{proof}
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{\arabic{enumi}.}
+        \item Follows directly from Lemma \ref{lemma_2.1}.
+        \item By Lemma \ref{lem:ortn_basis}, there exists an orthogonal matrix $R\in\matr$ such that $R^{-1}AR$ is diagonal. By Proposition \ref{prop:spec_the_II}, the existence of such a matrix $R$ is equivalent to eigenvectors of $A$ forming an orthonormal basis in $\R^n$, which is exactly what we needed to show.
+    \end{enumerate}
+\end{proof}

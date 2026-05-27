@@ -1,0 +1,267 @@
+\section{Definitions and Preliminaries}\label{sec:one}
+In this section, we will introduce essential definitions and results required in the later sections of this thesis. Table \ref{tab:notation_general} summarises the general notation used throughout the thesis. 
+
+\begin{table}[H]
+    \centering
+    \caption{General notation used throughout the thesis.}
+    \label{tab:notation_general}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Notation} & \textbf{Meaning} \\
+        \midrule
+        $\matk$ & Square $n\times n$ matrix over $\K\in\{\R,\C\}$ \\
+        $\text{Mat}_{n\times 1}(\K)$ & Column vectors of length $n$ with elements in $\K\in\{\R,\C\}$\\
+        $A_{ij}$ & $(ij)$-th element of a matrix $A\in\matk$ \\
+        $[v_1,\dots,v_n]$ & Matrix with columns $v_1,\dots, v_n\in\text{Mat}_{n\times 1}(\K)$ \\
+        $e_k$ & $k$-th canonical basis vector \\
+        $\Theta_n$ & Zero matrix of shape $n\times n$ \\
+        $\Theta$ & Zero matrix (with dimensions clear from context)  \\
+        $I_n$ & Identity matrix of shape $n\times n$ \\
+        $\mathbf{1}$ & Vector $(1,\dots,1)^T$ \\
+        $\norm{\cdot}_2$ & Euclidean 2-norm \\
+        $\text{card}(X)$ & Cardinality of set $X$ \\
+        $\delta_{ij}$ & Kronecker delta \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Algebra}
+We start with some general definitions from linear algebra; later in this subsection, we will also prove some key results used in the following sections of the thesis.
+
+\begin{df}\label{df:eigenvec}
+    Let $A\in\matk$ be a square matrix. Vectors $\psi\in\text{Mat}_{n\times 1}(\C)\setminus \{0\}$ and \linebreak $\phi\in\text{Mat}_{n\times 1}(\C)\setminus \{0\}$ are called respectively \textit{right} and \textit{left eigenvectors} if 
+    $$
+    A\psi = \lambda\psi \text{ and } \phi^T A = \mu \phi^T,
+    $$
+    where $\lambda,\mu\in\C$ are eigenvalues. 
+\end{df}
+
+Note that in Definition \ref{df:eigenvec}, eigenvalues of real matrices can be either real or complex.
+
+\begin{df}
+    Let $M\in\matr$. The value
+    \begin{gather*}
+        \rho(M)\coloneqq\max\{\abs{\lambda}: \lambda \text{ is an eigenvalue of } M\}
+    \end{gather*}
+    is called the \textit{spectral radius of $M$}.
+\end{df}
+
+Since almost all the matrices we work with in this thesis are square, we will define some useful types of square matrices.
+\newpage
+\begin{df}
+    Let $A\in\matr$. 
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{\arabic{enumi}.}
+        \item Matrix $A$ is called \textit{diagonal} if $A_{ij} = 0$ for every $i\neq j$ where $i,j\in\{1,\dots,n\}$.
+        
+        \item Matrix $A$ is called \textit{orthogonal} if its transpose is equal to its inverse: $A^T=A^{-1}$. 
+
+        \item Matrix $A$ is called \textit{symmetric} if it is equal to its transpose: $A=A^T$.
+
+        \item A symmetric matrix $A$ is called \textit{positive semi-definite} (PSD, for short) if for all vectors\newline $x\in\R^n\setminus\{0\}$ one has $x^TAx\geq 0$.
+    \end{enumerate}
+\end{df}
+
+The following theorem gives us a useful property of positive semi-definite matrices.
+
+\begin{theorem}[see {\cite[Theorem~7.2.1]{thr:alg_mul}}]\label{theor:non_neg_eigenval}
+    Let $A\in\matr$ be symmetric. The following statements are equivalent:
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{(\roman*)}
+        \item $A$ is positive semi-definite;
+        \item all eigenvalues of $A$ are non-negative.
+    \end{enumerate}
+\end{theorem}
+
+Diagonal matrices have many nice properties, especially if all their diagonal entries are positive. Given a diagonal matrix $D\in\matr$ with positive entries on its diagonal, meaning $D_{ii}> 0$, for $i\in\{1,\dots, n\}$, we can denote by $D^t$ ($t\in\R$) a diagonal matrix with $\l D^t\r_{ii} = \l D_{ii}\r^t$. 
+
+An important result in linear algebra is called the Gram-Schmidt orthogonalisation process, but before we can state it, we must first define inner product spaces.
+
+\begin{df}
+    Let $H$ be a linear space over the field $\R$ and $(a,b)\in H^2$ be an ordered pair. The mapping $H^2 \ni (a,b)\mapsto \ip{a}{b}\in\R$ is called an \textit{inner product} if the following conditions are met for all $a,b,c\in H$ and $k\in\R$:
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{\arabic{enumi}.}
+        \item $\ip{a}{a}\geq0 \text{ and } [\ip{a}{a}=0\iff a=0]$;
+        \item $\ip{a}{b} = \ip{b}{a}$;
+        \item $\ip{a+b}{c}=\ip{a}{c}+\ip{b}{c}$;
+        \item $\ip{ka}{b}=k\ip{a}{b}$.
+    \end{enumerate}
+
+    A space $E$ equipped with an inner product $\ip{\cdot}{\cdot}$ is called an \textit{inner product space}.
+\end{df}
+
+\begin{df}
+    Let $E$ be an inner product space. Vectors $v_1, v_2\in E$ are called \textit{orthogonal} if $\ip{v_1}{v_2}=0$. A system of vectors $\{v_1,\dots, v_n\}\subset E$ is called orthogonal if they are pair-wise orthogonal: for all $i,j\in\{1,\dots,n\}$, if $i\neq j$ then $\ip{v_i}{v_j} = 0$. 
+    
+    If additionally for every $v_i\in\{v_1,\dots, v_n\}$ the length $\norm{v_i}\coloneqq\sqrt{\ip{v_i}{v_i}}=1$ then the system is called \textit{orthonormal}.
+\end{df}
+
+Now we can state the Gram-Schmidt orthogonalisation process.
+
+
+\begin{theorem}[Gram-Schmidt orthogonalisation process; see {\cite[Section~4.4]{thr:gsop}}]\label{theor:gsop}
+Given a finite or countable linearly independent system of vectors in an inner product space $H$, the Gram-Schmidt process produces an orthogonal system of non-zero vectors that spans the same subspace. After normalising these vectors, we obtain an orthonormal system which spans the same subspace.
+\end{theorem}
+
+
+\begin{prop}[Existence of eigenvalues; see {\cite[Theorem~5.19]{thr:ex_eigval}}]\label{prop:exists_eigenval}
+Every operator\footnotemark[1] on a finite-dimensional nonzero complex vector space has an
+eigenvalue.
+\end{prop}
+
+\footnotetext[1]{Here, the operator is a linear map from a vector space to itself.}
+
+Since matrices are linear operators on finite-dimensional vector spaces, it follows directly from Proposition \ref{prop:exists_eigenval} that every matrix $A\in\matr$ has at least one eigenvalue $\lambda\in\C$.
+
+\begin{prop}[see {\cite[Proposition~11.23]{prop:orthog_equiv}}]\label{prop:orthog_equiv}
+    Let $A\in\matr$. Then the following statements are equivalent:
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{(\roman*)}
+        \item $A$ is orthogonal;
+        \item the columns of $A$ form an orthonormal system.
+    \end{enumerate}
+\end{prop}
+
+We will end this subsection by proving that all symmetric real matrices have real eigenvalues. For a complex number $\lambda\in\C$, we denote its complex conjugate by $\overline{\lambda}$.
+
+\begin{lemma}\label{lemma_2.1}
+    If $A\in\matr$ is symmetric, then its eigenvalues are real.
+\end{lemma}
+\begin{proof}
+    Let $A\in\matr$ be a symmetric matrix. By Proposition \ref{prop:exists_eigenval}, the matrix $A$ has at least one eigenvalue. Suppose $\lambda\in\C$ is an eigenvalue. We will show that $\lambda = \overline{\lambda}$. First notice that since $A$ is real, the following holds:
+    \begin{gather*}
+        Av = \lambda v \implies \overline{A v} = \overline{\lambda v} \iff A\overline{v} = \overline{\lambda}\overline{v}.
+    \end{gather*}
+    
+    Now, denote the corresponding eigenvector of eigenvalue $\lambda$ as $v$. This means $Av = \lambda v$. On one hand
+    \begin{gather*}
+            v^TA\overline{v} = \l Av\r ^T \overline{v} = (\lambda v)^T\overline{v} = \lambda v^T \overline{v}.
+   \end{gather*} 
+    On the other hand
+        \begin{gather*}
+            v^TA\overline{v} = v^T\overline{\lambda}\overline{v}=\overline{\lambda} v^T\overline{v}.
+        \end{gather*}
+    Hence $\lambda v^T\overline{v} = \overline{\lambda}v^T\overline{v} \implies \lambda = \overline{\lambda}$. Note that we can cancel out $v^T\overline{v} = \abs{v_1}^2+\dots+\abs{v_n}^2\neq 0$ because $v$ is an eigenvector. Therefore, we have proven that all eigenvalues of $A$ are real.
+\end{proof}
+
+The last theorem we state in this subsection is called the Perron-Frobenius theorem.
+
+\begin{theorem}[Perron-Frobenius Theorem, see {\cite[Theorem~8.2.2]{thr:alg_mul}}]\label{thr:perron_frobenius}
+    Let $A\in\matr$ be a positive matrix. Then the eigenvector corresponding to the largest eigenvalue can be chosen to be positive, which means there exists an eigenvector $v$ such that
+    $$
+    Av = \rho(A)v,
+    $$
+    and $v_i>0$ for every $i\in\{1,\dots,n\}$.
+\end{theorem}
+
+
+\subsection{Probability theory}
+To formally define diffusion distance and diffusion maps, we first introduce Markov chains and state some theorems about random processes. We start with some general definitions from probability. This section is strongly inspired by \cite{axler_measure}.
+
+\begin{df}\label{def:probability}
+    Let $\F$ be a $\sigma$-algebra defined on a set $\Omega$ and let $\pr$ be a measure on $(\Omega, \F)$. The measure $\pr$ is called a \textit{probability measure} if $\pr(\Omega)=1$. In this case, the triple $(\Omega, \F, \pr)$ is called a \textit{probability space}.
+    Set $\Omega$ is called a \textit{sample space}, elements of the $\sigma$-algebra $\F$ are called \textit{events}, and for $A\in\F$ the value $\pr(A)$ is called the \textit{probability of $A$}.
+\end{df}
+
+From now on, let $(\Omega, \F, \pr)$ be a probability space.
+
+As Definition \ref{def:probability} suggests, the sample space can be quite abstract, for example, the set of all possible trajectories of a stochastic process. To work with such structures, it is often useful to map the events to real numbers using functions called random variables.
+
+\begin{df}
+    Let $E$ be a finite set. A function $X: \Omega \to E$ such that $\{\omega\in\Omega: X(\omega)=s\}\in\F$ for every $s\in E$ is called a \textit{random variable}.
+\end{df}
+
+Let  $X:\Omega\to E$ be a random variable and let $s\in E$. For the probability that $X$ takes the value $s$, we write $$\pr(X=s)\coloneqq \pr(\{\omega\in\Omega: X(\omega)=s\}).$$
+More generally, for a finite collection of random variables $X_0,\dots,X_{n-1}$ and $s_{0},\dots,s_{n-1}\in E$ we write 
+$$\pr(X_0 = s_0,\dots, X_{n-1}=s_{n-1})\coloneqq\pr(\{\omega\in\Omega:X_0(\omega)=s_0,\dots,X_{n-1}(\omega)=s_{n-1}\}).$$
+
+\begin{df}
+    Let $A,B\in\F$ be events with $\pr(B)>0$. The \textit{conditional probability of $A$ given $B$} is 
+    \begin{gather*}
+        \pr(A\mid B) \coloneqq \frac{\pr(A\cap B)}{\pr(B)}.
+    \end{gather*}
+\end{df}
+
+Now we can introduce discrete-time stochastic processes on a finite state space. 
+
+\begin{df}
+    Let $E$ be a finite set. A sequence $\{X_t\}_{t\geq0}$, where each $X_t:\Omega\to E$ is a random variable, is called a \textit{discrete-time stochastic process}, and $E$ is called its \textit{state space}. Elements of $E$ are called \textit{states}, and we say the process is in \textit{state $s$ at time $t$} if $X_t=s$.
+\end{df}
+
+
+A special type of discrete-time stochastic process is called a Markov chain.
+
+\begin{df}
+    Let $\{X_t\}_{t\geq0}$ be a discrete-time stochastic process with state space $E$. If for all $n\in\N\cup\{0\}$ and all states $s_0,\dots, s,l\in E$ the following property 
+    \begin{gather*}
+        \pr(X_{n+1}=l\mid X_n=s,\dots, X_0 = s_0) = \pr(X_{n+1}=l\mid X_n=s)
+    \end{gather*}
+    is satisfied, then the discrete-time stochastic process is called a \textit{Markov chain}. This property is called the \textit{Markov property}. The chain is called \textit{time-homogeneous} if, additionally, the right-hand side of the property does not depend on $n$.
+\end{df}
+
+\begin{df}
+    Let $\{X_t\}_{t\geq 0}$ be a time-homogeneous Markov chain, let $E=\{s_0, \dots, s_{n-1}\}$ be its state space. The matrix $M\in\matr$, with $M_{ij} \coloneqq \pr(X_{1}=s_j\mid X_0=s_i)$, is called the \textit{transition matrix} of the Markov chain. Since each row of matrix $M$ is a probability distribution over $E$, all its entries are non-negative, and each row sums up to 1. Square matrices with these two properties satisfied are called \textit{stochastic matrices}.
+\end{df}
+
+\begin{ex}\label{ex:markov_chain}
+Figure \ref{fig:markov_example} contains an example of a time-homogeneous Markov chain with state space $E=\{s_0,s_1\}$ and with transition probability $\alpha$ from state $s_0$ to $s_1$, and $\beta$ from state $s_1$ to $s_0$.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[->, >=Stealth, thick, node distance=4cm]
+        \node[state] (1) {$s_0$};
+        \node[state, right of=1] (2) {$s_1$};
+        
+        \path (1) edge[bend left=20] node[above] {$\alpha$} (2)
+              (2) edge[bend left=20] node[below] {$\beta$} (1)
+              (1) edge[loop left]    node[left]  {$1-\alpha$} (1)
+              (2) edge[loop right]   node[right] {$1-\beta$} (2);
+    \end{tikzpicture}
+    \caption{A time-homogeneous Markov chain with two states, and transition probabilities $\alpha, \beta \in [0,1]$.}
+    \label{fig:markov_example}
+\end{figure}
+The corresponding Markov transition matrix is 
+    \begin{align*}
+    M =
+        \left(
+        \begin{array}{c c}
+        1-\alpha & \alpha \\
+        \beta & 1-\beta
+        \end{array}
+        \right).
+    \end{align*}
+
+\end{ex}
+
+A useful property of time-homogeneous Markov chain transition matrices is called the \textit{Chapman-Kolmogorov equation}. First, a quick remark regarding notation. For $t\in\N\cup\{0\}$ we denote the probability of moving from state $s$ to state $l$ in $t$ steps by $p(t,l\mid s)\coloneqq \pr(X_{t} = l \mid X_0 = s)$. By the Chapman-Kolmogorov equation (see \cite[Theorem~(7), \S6.1]{thr:kolmog}), the entry with row corresponding to state $s$ and column corresponding to state $l$ of the Markov transition matrix $M^t$ equals $p(t,l\mid s)$.
+
+States of a Markov chain can have different properties. The next definition provides insight into some state properties we will use in the proofs that follow.
+
+\begin{df}
+    Let $s,l\in E$ be states of a Markov chain. State $l$ is said to be \textit{accessible} from state $s$ if $p(t,l\mid s)>0$ for some $t\in\N\cup\{0\}$, in this case we write $s\rightarrow l$. States $s$ and $l$ are said to \textit{communicate} if $s\rightarrow l$ and $l\rightarrow s$, we denote this by $s\leftrightarrow l$. A Markov chain is called \textit{irreducible} if every pair of states communicates.
+\end{df}
+
+
+Another useful property of a state is its periodicity.
+\begin{df}
+    Let $s\in E$ be a state. The greatest common divisor (gcd, for short) of the set $\{t\in\N: p(t,s\mid s) > 0\}$ (with the period defined as $\infty$ if the set is empty) is called the \textit{period} of the state. The Markov chain is called \textit{aperiodic} if every state has period 1.
+\end{df}
+
+Often we are interested in how the Markov chain performs over many steps. It turns out that irreducibility and aperiodicity together guarantee that the process behaves \enquote{nicely}. We will now state a key theorem regarding that.
+
+\begin{theorem}[The Fundamental Theorem of Markov chains; see {\cite[Theorem~(1)]{ergodic}}]\label{ergodic}
+    Let $\{X_t\}_{t\geq 0}$ be a Markov chain over a finite state space, with transition matrix $M$. Suppose the chain is irreducible and aperiodic. Then the following hold:
+    \begin{enumerate}
+        \renewcommand{\labelenumi}{\arabic{enumi}.}
+        \item There exists a unique stationary distribution $\pi=(\pi_0,\dots, \pi_{n-1})$ over the states such that for any states $s,l$
+            \begin{equation*}
+                \lim\limits_{t\to\infty}\pr(X_t=s\mid X_0=l)=\pi_s.
+            \end{equation*}
+        \item $\pi$ is a left eigenvector of matrix $M$, with eigenvalue 1, meaning $\pi M = \pi$.
+    \end{enumerate}
+\end{theorem}
+
+\begin{theorem}[see {\cite[Theorem~8.4.4]{thr:alg_mul}}]\label{thr:alg_mul}
+    Let $M\in\matr$, $n\geq 2$, be irreducible and non-negative. Then $\rho(M)$ is an algebraically simple eigenvalue of $M$, that is, it has algebraic multiplicity 1.
+\end{theorem}
+
+Note that the result from Theorem \ref{thr:alg_mul} holds for any $1\times 1$ real matrix $m\in\text{Mat}_1(\R)$ too. Indeed, by solving for eigenvalues $\det(m-\lambda I) = 0 \Leftrightarrow m = \lambda$ and thus $\lambda$ has algebraic multiplicity 1.

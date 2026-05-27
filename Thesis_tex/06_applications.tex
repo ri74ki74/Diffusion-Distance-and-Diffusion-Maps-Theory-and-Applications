@@ -1,0 +1,212 @@
+\section{Applications}\label{sec:three}
+
+As mentioned in the introduction, diffusion maps have many applications, including in computer vision and in statistical data analysis. In computer vision, we are often interested in determining whether two shapes are intrinsically similar, regardless of their positions in the ambient space. In data analysis, we often work with high-dimensional data and are interested in whether it can be represented in a computationally cheaper, lower-dimensional space without losing important information. 
+
+In this section, we illustrate the applications of diffusion maps on three artificial datasets and one well-established dataset. The first example is a dumbbell-shaped dataset, intended to give an intuitive sense of the relationship between diffusion distance on the graph and the Euclidean distance in the embedded space. We follow this up by applying diffusion maps to a dataset shaped like a toroidal helix, demonstrating how diffusion maps can be used for dimensionality reduction to retain the intrinsic geometry, and how a classical linear method, principal component analysis (see \cite[Section~1.1]{PCA}), fails to do so. For the third artificial example, we show how diffusion maps can be used to solve correspondence problems in a controlled environment using two intrinsically identical tori. This naturally leads to our last example, which shows how diffusion maps can be applied to intrinsically identical real-world data, and identifies their limitations. For this, we chose high-resolution human figures from the Dynamic FAUST dataset (see \cite{FAUST}). All code for generating the datasets, applying diffusion maps and calculating the errors is available on GitHub (see \cite{git}).
+
+\subsection{Artificial Examples}\label{subsec:artif}
+In all three of the following examples, we will illustrate the embeddings in either two- or three-dimensional space. This deviates from Theorem \ref{theor:main_theorem}, which states that diffusion distance is equivalent to the Euclidean distance in the embedded $(n-1)$-dimensional space. Nonetheless, the embeddings capture the essence well and are therefore valuable.
+
+Before starting with the specific examples, we provide the parameters for all three examples in Table \ref{tab:experiments}. For all datasets, the Gaussian kernel (see Example \ref{ex:gaussian_kernel}) was used to construct a weighted graph from the dataset.
+
+\begin{table}[H]
+    \centering
+    \caption{Parameters used for the three examples in Section~\ref{subsec:artif}.}
+    \label{tab:experiments}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Dataset} & $\boldsymbol{n}$ \textbf{(data points)}  & $\boldsymbol{\varepsilon}$ \textbf{(width)}\footnotemark[2] & \textbf{Data dim.} & \textbf{Embedding dim.} \\
+        \midrule
+        Dumbbell           & 515    & 0.05 & 2 & 1 \\
+        Toroidal helix     & 3000   & 0.05 & 3 & 2 \\
+        Tori               & 5000   & 0.05 & 3 & 2 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\footnotetext[2]{$\boldsymbol{\varepsilon}$ is the width parameter of the Gaussian kernel (see Example~\ref{ex:gaussian_kernel}).}
+
+
+
+
+\subsubsection{Dumbbell-shaped dataset}\label{subsubsec:db}
+To illustrate what diffusion maps capture, we chose to embed a dumbbell-shaped dataset (for exact parameters see Table \ref{tab:experiments}). The dataset in Figure \ref{fig:db_euclidean} contains two clusters (coloured turquoise and grey) connected by a narrow neck (coloured light green). We highlight three points: points $A$ and $B$ are chosen to be near the bottleneck in the grey and turquoise cluster, respectively. Point $C$ is chosen to be farther from the "bridge" in the turquoise cluster.
+
+Figure \ref{fig:db_euclidean} shows the Euclidean distance between pairs $A, B$ and $B, C$. With respect to the Euclidean distance, points $A$ and $B$ are closer to each other than points $B$ and $C$. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=16cm]{db_euclidean.png}
+    \caption{Dumbbell-shaped dataset, with highlighted points and the Euclidean distances between them.}
+    \label{fig:db_euclidean}
+\end{figure}
+
+However, if we now look at the weighted paths connecting the respective pairs (see Figure \ref{fig:db_diff}), it is clear that points $B$ and $C$ are much better connected than points $A$ and $B$. This is expected since $B$ and $C$ lie in the same cluster. Even though the graph is fully connected, the paths are weighted using the Gaussian kernel (see Example \ref{ex:gaussian_kernel}), so points within the cluster are connected via edges with larger weights. This means that the random walk is more likely to stay within the cluster it starts from, and hence the diffusion distance between points $B$ and $C$ is smaller than between points $A$ and $B$.
+
+Note that in Figure \ref{fig:db_diff} the number of simulated paths was bounded by 2500 and the number of steps in each path was bounded by 45. Only paths that reached the desired endpoint were visualised (for example, for paths from $B$ to $C$, only paths that reached point $C$ in no more than 45 steps are shown). Additionally, the graph in Figure \ref{fig:db_diff} is fully connected, but since the width of the edges depends on their weight, edges with very small weights are not visible in the plot.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=16cm]{db_diff.png}
+    \caption{Dumbbell-shaped dataset, with red paths connecting points $A$ and $B$ and orange paths connecting points $B$ and $C$.}
+    \label{fig:db_diff}
+\end{figure}
+
+    After embedding the graph following the construction stated in Subsection \ref{subsec:diff_theory} but using only the first non-trivial eigenvector and eigenvalue, the resulting embedding lies in $\R$. Figure \ref{fig:db_embedding} shows the resulting embedding in $\R$. As expected, points $B$ and $C$, which have a smaller diffusion distance, are mapped closer in $\R$ than points $A$ and $B$, which have a larger diffusion distance. The two clusters are cleanly separated in the embedding, with the bottleneck points being mapped between them.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=16cm]{db_embedding.png}
+    \caption{Dumbbell-shaped graph mapped to $\R$ with highlighted points $A,B,C$.}
+    \label{fig:db_embedding}
+\end{figure}
+
+\subsubsection{Toroidal-helix-shaped dataset}\label{subsec:toroidal helix}
+To illustrate which points on the toroidal helix are close to one another with respect to diffusion distance, we applied a colour gradient to the generated dataset. The gradient parametrises positions along the toroidal helix, meaning points which are intrinsically close are similar in colour. This allows us later to illustrate how diffusion maps capture the intrinsic geometry that principal component analysis (PCA, for short) does not. We will not discuss in detail why using diffusion maps for dimensionality reduction is justified, since it is outside the scope of this thesis. In short, the right eigenvectors of the Markov matrix form a basis of $\R^n$, but often the first $k\leq n-1$ non-trivial eigenvectors capture the most prominent features with respect to diffusion, and therefore it is sufficient to embed the data into $\R^k$ (see \cite[Section~2]{nips:dif_maps}). On the other hand, PCA projects the data onto $l\leq \min(p, n-1)$ eigenvectors of a covariance matrix (where $n$ is the number of data points, and $p$ is the dimensionality of data points), and thus captures the directions of greatest variance. Figure \ref{fig:toroidal helix} illustrates the coloured dataset resembling a toroidal helix in $\R^3$. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{helix_zoomed.png}
+    \caption{Toroidal-helix-shaped dataset in $\R^3$.}
+    \label{fig:toroidal helix}
+\end{figure}
+
+After applying diffusion maps to the shape and mapping it into $\R^2$, using two eigenvectors corresponding to the two largest non-trivial eigenvalues, we end up with a circular shape shown in Figure \ref{fig:toroidal_helix_embedded}. 
+
+This coincides nicely with what is expected, since points which are farthest from each other on the toroidal helix with respect to diffusion distance are also far apart from each other in the embedded space with respect to the Euclidean distance. Comparing the result to applying PCA on the same dataset and embedding it to $\R^2$ (Figure \ref{fig:toroidal_helix_embedded_PCA}), we can clearly see that the intrinsic geometry is not captured.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[c]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{helix_embedded.png}
+    \caption{Diffusion maps for dimensionality reduction on the toroidal helix.}
+    \label{fig:toroidal_helix_embedded}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[c]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{helix_pca.png}
+    \caption{PCA for dimensionality reduction on the toroidal helix.}
+    \label{fig:toroidal_helix_embedded_PCA}
+  \end{subfigure}
+  \caption{Comparison of results of applying diffusion maps and PCA for dimensionality reduction.}
+  \label{fig:toroidal helix_pca}
+\end{figure}
+
+\subsubsection{Torus-shaped dataset}\label{subsec:tori}
+As mentioned, in computer vision, diffusion maps can be used to determine if two shapes are intrinsically similar. This kind of problem is called a correspondence problem. Formally,
+correspondence problems are tasks where we have $N\in\N$ graphs $G_1=(V_1, E_1), \dots, G_N = (V_N, E_N)$ and we are interested in finding subsets of vertices $V_2'\subset V_2, \dots, V_k'\subset V_k$ $(\N\ni k\leq N)$ which are most similar (with respect to some metric) to a given subset $V_1'\subset V_1$. 
+
+For this example, we chose to work with two tori. We will first provide a visual solution to the task by comparing embeddings in $\R^2$, and then confirm the result numerically. We generated the first torus (in red) to be centred around the origin $(0,0,0)$ in $\R^3$ (Figure \ref{fig:tor_or}). The second one is an identical copy of the first, shifted to be centred around $(100,100,100)$ and rotated 90 degrees around the $x$-axis (Figure \ref{fig:tor_tr}). This is a good example of a controlled geometric setting, since the Markov matrices, and hence the embeddings, are identical because the Gaussian kernel is invariant under shifts and rotations. 
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[c]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{tor_or.png}
+    \caption{Original torus-shape dataset in $\R^3$, \\denoted $X_1$.}
+    \label{fig:tor_or}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[c]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{tor_tr.png}
+    \caption{Transformed torus-shape dataset in $\R^3$, denoted $X_2$.}
+    \label{fig:tor_tr}
+  \end{subfigure}
+  \caption{The original and transformed tori in $\R^3$.}
+  \label{fig:tori_original_sapce}
+\end{figure}
+
+After embedding both tori into $\R^2$ separately and comparing the mappings, it is easy to see that the embeddings are identical (Figures \ref{fig:tor_or_embedding} and \ref{fig:tor_tr_embedding}).
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[c]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{tor_or_embedding.png}
+    \caption{Original torus embedded, denoted \\$\Psi_{X_1}(X_1)$.}
+    \label{fig:tor_or_embedding}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[c]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{tor_tr_embedding.png}
+    \caption{Transformed torus embedded, denoted $\Psi_{X_2}(X_2)$.}
+    \label{fig:tor_tr_embedding}
+  \end{subfigure}
+  \caption{Original and transformed tori embedded into $\R^2$ using diffusion maps.}
+  \label{fig:torus_embeddings}
+\end{figure}
+
+
+The identical embeddings in Figure \ref{fig:torus_embeddings} confirm visually that the diffusion maps captured the intrinsic geometry. To confirm our result numerically, we calculated the error $r=\sum\limits_{i=1}^{\text{card}(X)}\norm{X_i-Y_i}_2$ (where $X, Y$ are datasets of the same cardinality) between the original datasets $X_1, X_2$ and between the embeddings $\Psi_{X_1}(X_1), \Psi_{X_2}(X_2)$:
+\begin{align*}
+    & r_{\text{original}} = \sum\limits_{i=1}^{\text{card}(X_1)}\norm{(X_1)_{i}-(X_2)_{i}}_2 \approx 866216.966,\\
+    & r_{\text{embedded}} = \sum\limits_{i=1}^{\text{card}(\Psi_{X_1}(X_1))}\norm{\Psi_{X_1}(X_1)_i-\Psi_{X_2}(X_2)_i}_2 \approx 3.612\cdot 10^{-7}.
+\end{align*}
+Based on Theorem \ref{theor:main_theorem}, we would expect the sum of pairwise distances between the embedded shapes $r_{\text{embedded}}$ to be exactly zero (assuming constant sign choices for the eigenvectors). The computed value is close, and the difference is most likely caused by numerical errors.
+
+\subsection{Diffusion Maps on a Non-Rigid Correspondence Problem}\label{subsec:FAUST}
+In the example of two tori from Subsection \ref{subsec:tori}, the geometry of the data was controlled: the second torus was a shifted and rotated copy of the original one, and therefore their weight matrices were identical. For real-world correspondence problems, such good conditions are rare. In this section, we will illustrate how diffusion maps perform for solving more complex correspondence problems. 
+
+We chose to work with two figures from the Dynamic FAUST dataset (see \cite{FAUST}), which contains high-resolution human-shaped figures in different poses. This is a more difficult task than the one with tori, since even though the human figures in different poses are intrinsically identical, the change in pose is a non-rigid transformation, which causes the weight matrices to differ. Indeed, when a person moves naturally (running, for example), the Euclidean distance between body parts changes. Since the weights are built using the Gaussian kernel (see Example \ref{ex:gaussian_kernel}), which is influenced by the ambient space, the weight matrices corresponding to different poses do differ. Hence, the embeddings are not identical.
+
+In some cases, the Gaussian kernel parameters can be tuned to better capture the prominent features. Exploring how to choose the optimal parameters is outside the scope of this thesis, but briefly, for a small $\epsilon$, only local features are captured, and as $\epsilon$ approaches $\infty$, the only thing that diffusion maps capture is the number of data points. We chose $\epsilon=0.5$ based on a few trials. Table \ref{tab:faust} summarises the parameters of this example.
+
+\begin{table}[H]
+    \centering
+    \caption{Parameters used for the FAUST example in Section~\ref{subsec:FAUST}.}
+    \label{tab:faust}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Dataset} & $\boldsymbol{n}$ \textbf{(data points)}  & $\boldsymbol{\varepsilon}$ \textbf{(width)}\footnotemark[2] & \textbf{Data dim.} & \textbf{Embedding dim.} \\
+        \midrule
+        DFAUST  & 6890 & 0.5  & 3 & 3 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+Figure \ref{fig:FAUST_or} shows two human-shaped figures in the original space $\R^3$. In the first figure (Figure \ref{fig:standing_FAUST}) the person is standing still while in the second figure (Figure \ref{fig:running_FAUST}) the person is running-in-place.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[c]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{FAUST_standing.png}
+    \caption{Dataset $X$ in the shape of a standing figure.}
+    \label{fig:standing_FAUST}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[c]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{FAUST_running.png}
+    \caption{Dataset $Y$ in the shape of a running-in-place figure.}
+    \label{fig:running_FAUST}
+  \end{subfigure}
+  \caption{Two figures from the Dynamic FAUST dataset in the space $\R^3$.}
+  \label{fig:FAUST_or}
+\end{figure}
+
+Figure \ref{fig:faust_embedded} shows the embeddings in $\R^3$. We can see that they do not coincide perfectly but are relatively similar.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=16cm]{embedded_R3.png}
+    \caption{Dynamic FAUST figures embedded into $\R^3$ using diffusion maps.}
+    \label{fig:faust_embedded}
+\end{figure}
+
+Now confirming the results numerically: 
+\begin{align*}
+    & r_{\text{original}} = \sum\limits_{i=1}^{\text{card}(X)}\norm{X_{i}-Y_{i}}_2 \approx 1078.315,\\
+    & r_{\text{embedded}}= \sum\limits_{i=1}^{\text{card}(\Psi_X(X))}\norm{\Psi_X(X_{i})-\Psi_Y(Y_{i})}_2 \approx 0.0896.
+\end{align*}
+Therefore, we have illustrated that even for solving correspondence problems with non-rigidly transformed data, diffusion maps perform relatively well. Finally, it is worth noting again that performance could likely be improved by optimising kernel parameters (or possibly by choosing a different kernel altogether).
+
+
+
+
